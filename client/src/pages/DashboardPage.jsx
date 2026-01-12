@@ -43,6 +43,28 @@ const DashboardPage = () => {
         }
     };
 
+    // --- FITUR BARU: LIHAT SISWA ---
+    const handleViewStudents = async (courseId) => {
+        try {
+            // Gunakan api instance agar token otomatis terkirim
+            const res = await api.get(`/courses/${courseId}/students`);
+            
+            const { totalStudents, data } = res.data;
+
+            // Format tampilan alert sederhana
+            const studentList = data
+                .map((s, index) => `${index + 1}. ${s.name} (${s.email})`)
+                .join('\n');
+
+            alert(`👥 Total Siswa: ${totalStudents}\n\n${studentList || 'Belum ada siswa yang mendaftar.'}`);
+
+        } catch (err) {
+            console.error("Error viewing students:", err);
+            const msg = err.response?.data?.message || 'Gagal mengambil data siswa.';
+            alert(`❌ Error: ${msg}`);
+        }
+    };
+
     // Logic Pindah Halaman ke Edit
     const handleEdit = (courseId) => {
         navigate(`/edit-course/${courseId}`);
@@ -68,7 +90,6 @@ const DashboardPage = () => {
         <Container className="mt-4 mb-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2>📚 Daftar Kursus Tersedia</h2>
-                {/* Tombol hanya muncul untuk Instruktur */}
                 {user?.role === 'instructor' && (
                     <Button variant="success" onClick={() => navigate('/create-course')}>
                         + Buat Kursus Baru
@@ -90,12 +111,11 @@ const DashboardPage = () => {
                                 onEnroll={handleEnroll} 
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
+                                // --- BAGIAN PENTING YANG TADI HILANG ---
+                                onViewStudents={handleViewStudents} 
+                                // ---------------------------------------
                                 
-                                // --- PERBAIKAN LOGIKA ---
-                                // 1. Cek apakah user adalah PEMILIK kursus ini? (Untuk tombol Edit/Hapus)
                                 isOwner={user?.id === course.instructorId} 
-                                
-                                // 2. Kirim ROLE user (Untuk mematikan tombol Enroll bagi Instruktur)
                                 userRole={user?.role} 
                             />
                         </Col>

@@ -1,14 +1,15 @@
 import React from 'react';
 import { Card, Button, Badge } from 'react-bootstrap';
 
-// Perhatikan props baru: isOwner dan userRole
-const CourseCard = ({ course, onEnroll, isOwner, userRole, onEdit, onDelete }) => {
+// TAMBAHKAN prop 'onViewStudents' di sini
+const CourseCard = ({ course, onEnroll, isOwner, userRole, onEdit, onDelete, onViewStudents }) => {
     
     const formatRupiah = (price) => {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(price);
     };
 
-    const imageUrl = course.imageUrl ? `http://localhost:3000/${course.imageUrl}` : 'https://via.placeholder.com/300';
+    // Pastikan port backend sesuai (misal 5000 atau 3000)
+    const imageUrl = course.imageUrl ? `http://localhost:5000/${course.imageUrl}` : 'https://via.placeholder.com/300';
 
     return (
         <Card className="h-100 shadow-sm">
@@ -26,27 +27,32 @@ const CourseCard = ({ course, onEnroll, isOwner, userRole, onEdit, onDelete }) =
                 </Card.Text>
                 
                 <div className="mt-3">
-                    <small className="text-muted d-block mb-2">👤 {course.User?.name || 'Instruktur'}</small>
-                    
-                    {/* --- LOGIKA BARU YANG LEBIH KETAT --- */}
+                    <small className="text-muted d-block mb-2">👤 {course.instructor?.name || course.User?.name || 'Instruktur'}</small>
                     
                     {isOwner ? (
-                        // KONDISI 1: PEMILIK KURSUS (Bisa Edit/Hapus)
-                        <div className="d-flex gap-2">
-                            <Button variant="warning" size="sm" className="w-50" onClick={() => onEdit(course.id)}>
-                                ✏️ Edit
+                        // KONDISI 1: PEMILIK KURSUS
+                        <div className="d-flex flex-column gap-2">
+                            {/* --- TOMBOL BARU DISINI --- */}
+                            <Button variant="success" size="sm" className="w-100" onClick={() => onViewStudents(course.id)}>
+                                👥 Lihat Siswa
                             </Button>
-                            <Button variant="danger" size="sm" className="w-50" onClick={() => onDelete(course.id)}>
-                                🗑️ Hapus
-                            </Button>
+
+                            <div className="d-flex gap-2">
+                                <Button variant="warning" size="sm" className="w-50" onClick={() => onEdit(course.id)}>
+                                    ✏️ Edit
+                                </Button>
+                                <Button variant="danger" size="sm" className="w-50" onClick={() => onDelete(course.id)}>
+                                    🗑️ Hapus
+                                </Button>
+                            </div>
                         </div>
                     ) : userRole === 'instructor' ? (
-                        // KONDISI 2: INSTRUKTUR TAPI BUKAN PEMILIK (Tidak bisa ngapa-ngapain)
+                        // KONDISI 2: INSTRUKTUR LAIN
                         <Button variant="secondary" className="w-100" disabled>
                             👁️ Mode Instruktur
                         </Button>
                     ) : (
-                        // KONDISI 3: STUDENT (Bisa Daftar)
+                        // KONDISI 3: STUDENT
                         <Button variant="primary" className="w-100" onClick={() => onEnroll(course.id)}>
                             Daftar Sekarang
                         </Button>
