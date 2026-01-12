@@ -24,6 +24,10 @@ const Course = sequelize.define('Course', {
         type: DataTypes.ENUM('beginner', 'intermediate', 'advanced'),
         defaultValue: 'beginner'
     },
+    imageUrl: {
+        type: DataTypes.STRING,
+        allowNull: true // Boleh kosong kalau gak upload gambar
+    },
     instructorId: { // Foreign Key (ID User pembuat kursus)
         type: DataTypes.INTEGER,
         allowNull: false
